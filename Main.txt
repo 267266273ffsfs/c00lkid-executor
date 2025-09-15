@@ -1,0 +1,251 @@
+-- Serviços
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Criar ScreenGui
+local gui = Instance.new("ScreenGui")
+gui.Name = "CustomExecutor"
+gui.ResetOnSpawn = false
+gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+-- Frame Principal (Executor Lua)
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 400, 0, 300)
+mainFrame.Position = UDim2.new(0.3, 0, 0.3, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.BorderSizePixel = 3
+mainFrame.BorderColor3 = Color3.fromRGB(200, 0, 0)
+mainFrame.BackgroundTransparency = 0.2
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Visible = false
+mainFrame.Parent = gui
+
+-- Fundo da TextBox (Imagem)
+local bgImage = Instance.new("ImageLabel")
+bgImage.Size = UDim2.new(1, -20, 0, 200)
+bgImage.Position = UDim2.new(0, 10, 0, 40)
+bgImage.Image = "rbxassetid://134233100015488"
+bgImage.ScaleType = Enum.ScaleType.Stretch
+bgImage.BackgroundTransparency = 1
+bgImage.ImageTransparency = 0.3
+bgImage.ZIndex = 1
+bgImage.Parent = mainFrame
+
+-- Título
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+title.Text = "C00lkid executor"
+title.TextColor3 = Color3.fromRGB(255, 0, 0)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.BackgroundTransparency = 0.3
+title.ZIndex = 2
+title.Parent = mainFrame
+
+-- Scroll para scripts
+local scroll = Instance.new("ScrollingFrame")
+scroll.Size = UDim2.new(1, -20, 0, 200)
+scroll.Position = UDim2.new(0, 10, 0, 40)
+scroll.BackgroundTransparency = 1
+scroll.BorderSizePixel = 0
+scroll.ScrollBarThickness = 6
+scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+scroll.ZIndex = 2
+scroll.Parent = mainFrame
+
+-- Caixa de Texto (Lua)
+local scriptBox = Instance.new("TextBox")
+scriptBox.Size = UDim2.new(1, -5, 1, 0)
+scriptBox.MultiLine = true
+scriptBox.ClearTextOnFocus = false
+scriptBox.TextWrapped = false
+scriptBox.TextXAlignment = Enum.TextXAlignment.Left
+scriptBox.TextYAlignment = Enum.TextYAlignment.Top
+scriptBox.Font = Enum.Font.Code
+scriptBox.TextSize = 14
+scriptBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+scriptBox.BackgroundTransparency = 1
+scriptBox.Text = "-- Escreva seu script Lua aqui"
+scriptBox.Parent = scroll
+scriptBox.ZIndex = 2
+
+-- Atualizar CanvasSize
+scriptBox:GetPropertyChangedSignal("Text"):Connect(function()
+    local lines = #scriptBox.Text:split("\n")
+    scriptBox.Size = UDim2.new(1, -5, 0, math.max(200, lines * 18))
+    scroll.CanvasSize = UDim2.new(0, 0, 0, scriptBox.AbsoluteSize.Y)
+end)
+
+-- Função para criar botões
+local function createButton(name, posX, func)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 120, 0, 30)
+    btn.Position = UDim2.new(0, posX, 0, 250)
+    btn.Text = name
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 14
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
+    btn.BorderColor3 = Color3.fromRGB(200, 0, 0)
+    btn.ZIndex = 2
+    btn.Parent = mainFrame
+    btn.MouseButton1Click:Connect(func)
+end
+
+-- Botões principais
+createButton("Execute", 10, function()
+    local code = scriptBox.Text
+    local func, err = loadstring(code)
+    if func then
+        pcall(func)
+    else
+        warn("Erro: "..err)
+    end
+end)
+
+createButton("Clear", 140, function()
+    scriptBox.Text = ""
+end)
+
+createButton("Username Fix", 270, function()
+    scriptBox.Text = scriptBox.Text .. "\n-- Username: " .. LocalPlayer.Name
+end)
+
+-- ==============================
+-- GUI Editor (modo grande)
+-- ==============================
+local bigFrame = Instance.new("Frame")
+bigFrame.Size = UDim2.new(0, 600, 0, 400)
+bigFrame.Position = UDim2.new(0.2, 0, 0.2, 0)
+bigFrame.BackgroundColor3 = Color3.fromRGB(0,0,0)
+bigFrame.BorderSizePixel = 3
+bigFrame.BorderColor3 = Color3.fromRGB(200,0,0)
+bigFrame.BackgroundTransparency = 0.2
+bigFrame.Active = true
+bigFrame.Draggable = true
+bigFrame.Visible = false
+bigFrame.Parent = gui
+
+local bigScroll = Instance.new("ScrollingFrame")
+bigScroll.Size = UDim2.new(1, -20, 1, -20)
+bigScroll.Position = UDim2.new(0,10,0,10)
+bigScroll.BackgroundTransparency = 1
+bigScroll.ScrollBarThickness = 8
+bigScroll.Parent = bigFrame
+
+local bigBox = Instance.new("TextBox")
+bigBox.Size = UDim2.new(1, -5, 1, 0)
+bigBox.MultiLine = true
+bigBox.ClearTextOnFocus = false
+bigBox.TextWrapped = false
+bigBox.TextXAlignment = Enum.TextXAlignment.Left
+bigBox.TextYAlignment = Enum.TextYAlignment.Top
+bigBox.Font = Enum.Font.Code
+bigBox.TextSize = 14
+bigBox.TextColor3 = Color3.fromRGB(255,255,255)
+bigBox.BackgroundTransparency = 1
+bigBox.Parent = bigScroll
+
+-- Botão X para fechar editor
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0,80,0,30)
+closeButton.Position = UDim2.new(1,-90,0,10)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255,255,255)
+closeButton.BackgroundColor3 = Color3.fromRGB(50,0,0)
+closeButton.Font = Enum.Font.GothamBold
+closeButton.TextSize = 18
+closeButton.Parent = bigFrame
+
+closeButton.MouseButton1Click:Connect(function()
+    bigFrame.Visible = false
+end)
+
+-- Sincronizar texto entre os dois
+local function syncText()
+    scriptBox.Text = bigBox.Text
+end
+bigBox:GetPropertyChangedSignal("Text"):Connect(syncText)
+
+-- ==============================
+-- Notificação quando script é grande
+-- ==============================
+local function showBigScriptOptions()
+    local notice = Instance.new("Frame")
+    notice.Size = UDim2.new(0,300,0,100)
+    notice.Position = UDim2.new(0.5,-150,0.5,-50)
+    notice.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    notice.BorderColor3 = Color3.fromRGB(200,0,0)
+    notice.BorderSizePixel = 2
+    notice.Parent = gui
+
+    local msg = Instance.new("TextLabel")
+    msg.Size = UDim2.new(1,0,0,30)
+    msg.Position = UDim2.new(0,0,0,10)
+    msg.Text = "Script muito grande!"
+    msg.TextColor3 = Color3.fromRGB(255,0,0)
+    msg.Font = Enum.Font.GothamBold
+    msg.TextSize = 16
+    msg.BackgroundTransparency = 1
+    msg.Parent = notice
+
+    local exitBtn = Instance.new("TextButton")
+    exitBtn.Size = UDim2.new(0,120,0,30)
+    exitBtn.Position = UDim2.new(0.1,0,0,50)
+    exitBtn.Text = "Sair"
+    exitBtn.BackgroundColor3 = Color3.fromRGB(50,0,0)
+    exitBtn.TextColor3 = Color3.fromRGB(255,255,255)
+    exitBtn.Font = Enum.Font.GothamBold
+    exitBtn.TextSize = 16
+    exitBtn.Parent = notice
+
+    local enterBtn = Instance.new("TextButton")
+    enterBtn.Size = UDim2.new(0,120,0,30)
+    enterBtn.Position = UDim2.new(0.5,0,0,50)
+    enterBtn.Text = "Entrar no Editor"
+    enterBtn.BackgroundColor3 = Color3.fromRGB(50,0,0)
+    enterBtn.TextColor3 = Color3.fromRGB(255,255,255)
+    enterBtn.Font = Enum.Font.GothamBold
+    enterBtn.TextSize = 16
+    enterBtn.Parent = notice
+
+    exitBtn.MouseButton1Click:Connect(function()
+        notice:Destroy()
+    end)
+
+    enterBtn.MouseButton1Click:Connect(function()
+        bigBox.Text = scriptBox.Text
+        bigFrame.Visible = true
+        notice:Destroy()
+    end)
+end
+
+-- Detectar script grande
+scriptBox:GetPropertyChangedSignal("Text"):Connect(function()
+    if #scriptBox.Text > 900 then
+        showBigScriptOptions()
+    end
+end)
+
+-- ==============================
+-- Botão flutuante (abre/fecha executor)
+-- ==============================
+local windowButton = Instance.new("ImageButton")
+windowButton.Size = UDim2.new(0, 60, 0, 60)
+windowButton.Position = UDim2.new(0.05, 0, 0.1, 0)
+windowButton.Image = "rbxassetid://135157259142467"
+windowButton.BackgroundTransparency = 1
+windowButton.AutoButtonColor = true
+windowButton.Active = true
+windowButton.Draggable = true
+windowButton.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(1, 0)
+corner.Parent = windowButton
+
+windowButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = not mainFrame.Visible
+end)
